@@ -192,18 +192,44 @@ button.chip:active { transform: scale(.95); }
 
 /* ---------- caucao ---------- */
 .cau { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 34px; }
-.cau-row { display: grid; grid-template-columns: 1fr 120px 132px 100px; gap: 14px; align-items: center; padding: 11px 18px; border-top: 1px solid var(--border); }
+.cau-row {
+  display: grid; grid-template-columns: 1fr 150px 148px 120px 100px;
+  gap: 8px 14px; align-items: center; padding: 11px 18px; border-top: 1px solid var(--border);
+}
 .cau-row:first-child { border-top: 0; }
 .cau-name { font-weight: 500; }
-.cau-in { display: flex; align-items: center; gap: 6px; }
-.cau-in .cur { font-size: 12px; color: var(--text-faint); font-family: "IBM Plex Mono", monospace; }
-.cau-in input {
-  width: 100%; background: var(--surface-2); color: var(--text);
+.cau-tot { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
+.cau-tot b { font-weight: 600; font-size: 15px; }
+.cau-tot .of { color: var(--text-faint); }
+.cau-add { display: flex; align-items: center; gap: 5px; }
+.cau-add .cur { font-size: 12px; color: var(--text-faint); font-family: "IBM Plex Mono", monospace; }
+.cau-add input {
+  width: 100%; min-width: 0; background: var(--surface-2); color: var(--text);
   border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 9px;
   font: 500 13px/1.3 "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right;
 }
-.cau-in input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
-.cau-in .ro-val { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; }
+.cau-add input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.plus {
+  flex: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+  background: var(--accent); border: 1px solid var(--accent); color: var(--surface);
+  font: 600 17px/1 "IBM Plex Sans", system-ui, sans-serif;
+  display: flex; align-items: center; justify-content: center;
+}
+.plus:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+.plus:active { transform: scale(.93); }
+.plus:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cau-lancs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px; }
+.lanc {
+  font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: 11.5px; padding: 3px 8px; border-radius: 7px;
+  background: var(--accent-soft); color: var(--accent); border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+button.lanc { cursor: pointer; }
+button.lanc:hover { border-color: var(--late); color: var(--late); background: var(--late-soft); }
+button.lanc:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lanc .x { opacity: .55; font-size: 13px; }
+button.lanc:hover .x { opacity: 1; }
 .cau-bar { height: 6px; border-radius: 999px; background: var(--track); overflow: hidden; }
 .cau-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s ease; }
 .cau-bar.full > i { background: var(--accent-deep); }
@@ -244,6 +270,37 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 }
 .btn:hover { border-color: var(--accent); }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-key { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+.btn-key:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+
+/* ---------- modal ---------- */
+#modal { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 20px; }
+#modal.on { display: flex; }
+#modal .veil { position: absolute; inset: 0; background: rgba(20,22,24,.55); }
+.modal-box {
+  position: relative; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5);
+  width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 24px;
+}
+.modal-box h3 { font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 21px; margin: 0 0 8px; letter-spacing: -.01em; }
+.modal-box p { color: var(--text-muted); font-size: 14px; margin: 0 0 14px; }
+.modal-box ol { color: var(--text-muted); font-size: 14px; margin: 0 0 16px; padding-left: 20px; }
+.modal-box ol li + li { margin-top: 6px; }
+.modal-box b { color: var(--text); font-weight: 600; }
+.modal-actions { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 14px; }
+#m-code {
+  width: 100%; height: 150px; resize: vertical;
+  background: var(--surface-2); color: var(--text-muted);
+  border: 1px solid var(--border-strong); border-radius: 9px; padding: 9px 11px;
+  font: 400 11.5px/1.45 "IBM Plex Mono", ui-monospace, monospace; white-space: pre; overflow: auto;
+}
+#m-code:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.modal-hint { font-size: 12.5px; color: var(--text-faint); margin: 10px 0 0 !important; }
+.modal-hint.alerta { color: var(--late); background: var(--late-soft); border-radius: 8px; padding: 9px 11px; }
+.modal-hint b { color: inherit; }
+.modal-close { position: absolute; top: 14px; right: 14px; background: transparent; border: 0; color: var(--text-faint); font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.modal-close:hover { color: var(--text); background: var(--surface-2); }
+.modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .thumbs { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 11px; }
 .thumb { position: relative; }
 .thumb img { display: block; width: 96px; height: 66px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
@@ -271,14 +328,17 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   .total-block { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--border); padding: 20px 0 0; }
   .strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .people { grid-template-columns: 1fr; }
-  .cau-row { grid-template-columns: 1fr 108px 96px; }
+  .cau-row { grid-template-columns: 1fr 140px 148px; }
   .cau-bar { display: none; }
+  .cau-st { grid-column: 2 / -1; text-align: left; }
 }
 @media (max-width: 460px) {
   #root { padding: 20px 14px 60px; }
   .hero { grid-template-columns: 1fr; }
-  .cau-row { grid-template-columns: 1fr 104px; row-gap: 6px; }
-  .cau-st { grid-column: 2; text-align: right; }
+  .cau-row { grid-template-columns: 1fr 148px; row-gap: 7px; }
+  .cau-tot { grid-column: 1; }
+  .cau-add { grid-column: 2; grid-row: 1 / 3; }
+  .cau-st { grid-column: 1; text-align: left; }
   .fotos figure { min-width: 132px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -372,12 +432,55 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     }
   ],
   "fotos": [],
-  "pagos": {},
-  "caucaoPago": {},
-  "atualizadoEm": "2026-08-27T19:01:50.861Z"
+  "pagos": {
+    "p1:1": "2026-08-27",
+    "p2:1": "2026-08-27",
+    "p3:1": "2026-08-27",
+    "p4:1": "2026-08-27",
+    "p5:1": "2026-08-27",
+    "p6:1": "2026-08-27",
+    "p7:1": "2026-08-27",
+    "p8:1": "2026-08-27",
+    "p9:1": "2026-08-27",
+    "p10:1": "2026-08-27"
+  },
+  "caucaoLanc": {
+    "p1": [
+      {
+        "v": 98,
+        "d": "2026-08-27"
+      }
+    ],
+    "p2": [
+      {
+        "v": 98,
+        "d": "2026-08-27"
+      }
+    ],
+    "p3": [
+      {
+        "v": 98,
+        "d": "2026-08-27"
+      }
+    ],
+    "p4": [
+      {
+        "v": 98,
+        "d": "2026-08-27"
+      }
+    ],
+    "p10": [
+      {
+        "v": 98,
+        "d": "2026-08-27"
+      }
+    ]
+  },
+  "atualizadoEm": "2026-08-31T01:00:40.506Z"
 }
 </script>
 <div id="root"></div>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script id="app-js">
 (function () {
@@ -389,6 +492,16 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 
   var state = JSON.parse(document.getElementById("app-state").textContent);
   if (!state.fotos) state.fotos = [];
+  /* migra o formato antigo (um valor por pessoa) para lançamentos somáveis */
+  if (!state.caucaoLanc) state.caucaoLanc = {};
+  if (state.caucaoPago) {
+    Object.keys(state.caucaoPago).forEach(function (k) {
+      var v = +state.caucaoPago[k] || 0;
+      if (v > 0 && !state.caucaoLanc[k]) state.caucaoLanc[k] = [{ v: v, d: "" }];
+    });
+    delete state.caucaoPago;
+  }
+  var MAX_FOTOS = 5;
   var canEdit = false, api = null, dl = null, pending = null;
 
   var BRL0 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -419,7 +532,10 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   function alvoParcelas() { return somaParcela() * nParc(); }
   function alvoCaucao() { return (+state.caucao.porPessoa || 0) * nPess(); }
   function isPago(pid, n) { return Object.prototype.hasOwnProperty.call(state.pagos, pid + ":" + n); }
-  function caucaoDe(pid) { return +state.caucaoPago[pid] || 0; }
+  function lancsDe(pid) { return state.caucaoLanc[pid] || []; }
+  function caucaoDe(pid) {
+    return lancsDe(pid).reduce(function (a, l) { return a + (+l.v || 0); }, 0);
+  }
   function recebidoParcela(n) { return state.pessoas.reduce(function (a, p) { return a + (isPago(p.id, n) ? (+p.parcela || 0) : 0); }, 0); }
   function recebidoParcelas() { return state.parcelas.reduce(function (a, p) { return a + recebidoParcela(p.n); }, 0); }
   function recebidoCaucao() { return state.pessoas.reduce(function (a, p) { return a + caucaoDe(p.id); }, 0); }
@@ -484,7 +600,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       + "<h1>" + esc(state.casa.nome) + "</h1>"
       + '<p class="sub">' + esc(state.casa.local) + dts + "</p></div>"
       + '<div class="head-actions">'
-      + (canEdit && dl ? '<button type="button" class="btn" id="exportar">Baixar vers&atilde;o para o grupo</button>' : "")
+      + (canEdit ? '<button type="button" class="btn btn-key" id="exportar">Atualizar o grupo</button>' : "")
       + '<span class="badge' + (canEdit ? "" : " ro") + '"><span class="dot"></span>'
       + (canEdit ? "Voc&ecirc; pode dar baixa" : "Somente leitura") + "</span></div></header>";
 
@@ -542,21 +658,10 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     /* caucao */
     h += '<div class="sec-head"><h2>Cau&ccedil;&atilde;o</h2><span class="sec-note">'
       + money(state.caucao.porPessoa) + " por pessoa &middot; vence " + brFull(state.caucao.vencimento)
-      + (canEdit ? "<br>Digite quanto cada um j&aacute; entregou" : "") + "</span></div>";
+      + (canEdit ? "<br>Digite o valor recebido e clique em + para somar ao total" : "") + "</span></div>";
     h += '<div class="cau">';
     state.pessoas.forEach(function (pe) {
-      var alvo = +state.caucao.porPessoa || 0, pg = caucaoDe(pe.id);
-      var f = alvo > 0 ? Math.min(1, pg / alvo) : 0;
-      var s = cauStatus(pg, alvo);
-      h += '<div class="cau-row" data-row="' + pe.id + '">'
-        + '<span class="cau-name">' + esc(pe.nome) + "</span>"
-        + '<span class="cau-in"><span class="cur">R$</span>'
-        + (canEdit
-            ? '<input type="number" inputmode="decimal" min="0" step="10" value="' + (pg || "") + '" placeholder="0" data-cau="' + pe.id + '" aria-label="Cau&ccedil;&atilde;o pago por ' + esc(pe.nome) + '">'
-            : '<span class="ro-val">' + pg.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) + "</span>")
-        + "</span>"
-        + '<span class="cau-bar' + (f >= 1 ? " full" : "") + '"><i style="width:' + Math.round(f * 100) + '%"></i></span>'
-        + '<span class="cau-st"><span class="pill ' + s.cls + '">' + s.lbl + "</span></span></div>";
+      h += cauRowHTML(pe);
     });
     h += '<div class="cau-foot"><span>Alvo: <b>' + money(alvoCaucao()) + "</b> (" + nPess() + " x " + money(state.caucao.porPessoa) + ")</span>"
       + "<span>Recebido: <b>" + money(recebidoCaucao()) + "</b> &middot; falta <b>" + money(Math.max(0, alvoCaucao() - recebidoCaucao())) + "</b></span></div></div>";
@@ -582,7 +687,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
               + '<input id="f-pessoas.' + i + '.parcela" type="number" min="0" step="10" inputmode="decimal" data-cfg="pessoas.' + i + '.parcela" value="' + esc(pe.parcela) + '" aria-label="Valor da parcela"></span>';
           }).join("")
         + '</div><p class="cfg-sum">Soma por parcela: ' + money(somaParcela()) + " &middot; total das " + nParc() + " parcelas: " + money(alvoParcelas()) + "</p></div>";
-      h += '<div><p class="cfg-h">Fotos da turma (at&eacute; 4)</p>'
+      h += '<div><p class="cfg-h">Fotos da turma (at&eacute; 5)</p>'
         + (state.fotos.length
             ? '<div class="thumbs">' + state.fotos.map(function (f, i) {
                 return '<span class="thumb"><img src="' + esc(f.src) + '" alt="Foto ' + (i + 1) + '">'
@@ -592,6 +697,10 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
         + '<label class="btn" for="foto-in">Adicionar foto</label>'
         + '<input id="foto-in" type="file" accept="image/*" multiple hidden>'
         + '<p class="cfg-sum">As fotos ficam guardadas dentro da pr&oacute;pria p&aacute;gina e s&atilde;o reduzidas automaticamente.</p></div>';
+      h += '<div><p class="cfg-h">Backup dos lan&ccedil;amentos</p>'
+        + '<button type="button" class="btn" id="copiar-dados">Copiar dados</button>'
+        + '<p class="cfg-sum">Copia s&oacute; os n&uacute;meros (quem pagou o qu&ecirc;), sem as fotos. '
+        + "Cole no chat quando pedir uma altera&ccedil;&atilde;o nesta p&aacute;gina, pra n&atilde;o perder nada.</p></div>";
       h += "</div></details>";
     }
 
@@ -600,6 +709,75 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       + "a p&aacute;gina mostra a situa&ccedil;&atilde;o at&eacute; a data acima.</p>";
 
     document.getElementById("root").innerHTML = h;
+  }
+
+  function cauRowHTML(pe) {
+    var alvo = +state.caucao.porPessoa || 0;
+    var pg = caucaoDe(pe.id);
+    var f = alvo > 0 ? Math.min(1, pg / alvo) : 0;
+    var s = cauStatus(pg, alvo);
+    var lancs = lancsDe(pe.id);
+
+    var chips = "";
+    if (lancs.length) {
+      chips = '<span class="cau-lancs">' + lancs.map(function (l, i) {
+        var t = l.d ? "Lan&ccedil;ado em " + brFull(l.d) : "Lan&ccedil;amento";
+        return canEdit
+          ? '<button type="button" class="lanc" data-dellanc="' + pe.id + "|" + i + '" title="' + t + ' &mdash; clique para remover">'
+              + money(l.v) + ' <span class="x">&times;</span></button>'
+          : '<span class="lanc" title="' + t + '">' + money(l.v) + "</span>";
+      }).join("") + "</span>";
+    }
+
+    return '<div class="cau-row' + (chips ? " has-lancs" : "") + '" data-row="' + pe.id + '">'
+      + '<span class="cau-name">' + esc(pe.nome) + "</span>"
+      + '<span class="cau-tot"><b>' + money(pg) + '</b> <span class="of">de ' + money(alvo) + "</span></span>"
+      + (canEdit
+          ? '<span class="cau-add"><span class="cur">R$</span>'
+            + '<input type="number" inputmode="decimal" min="0" step="10" placeholder="0" data-add="' + pe.id + '"'
+            + ' aria-label="Valor a somar no cau&ccedil;&atilde;o de ' + esc(pe.nome) + '">'
+            + '<button type="button" class="plus" data-addbtn="' + pe.id + '" aria-label="Somar ao cau&ccedil;&atilde;o de ' + esc(pe.nome) + '">+</button></span>'
+          : "")
+      + '<span class="cau-bar' + (f >= 1 ? " full" : "") + '"><i style="width:' + Math.round(f * 100) + '%"></i></span>'
+      + '<span class="cau-st"><span class="pill ' + s.cls + '">' + s.lbl + "</span></span>"
+      + chips + "</div>";
+  }
+
+  function repintarCaucao(pid) {
+    var row = document.querySelector('[data-row="' + pid + '"]');
+    if (!row) return;
+    var pe = null;
+    for (var i = 0; i < state.pessoas.length; i++) if (state.pessoas[i].id === pid) pe = state.pessoas[i];
+    if (!pe) return;
+    row.outerHTML = cauRowHTML(pe);
+    var ft = document.querySelector(".cau-foot");
+    if (ft) ft.innerHTML = "<span>Alvo: <b>" + money(alvoCaucao()) + "</b> (" + nPess() + " x " + money(state.caucao.porPessoa) + ")</span>"
+      + "<span>Recebido: <b>" + money(recebidoCaucao()) + "</b> &middot; falta <b>" + money(Math.max(0, alvoCaucao() - recebidoCaucao())) + "</b></span>";
+    syncHero();
+  }
+
+  function somarCaucao(pid) {
+    var inp = document.querySelector('[data-add="' + pid + '"]');
+    if (!inp) return;
+    var v = parseFloat(String(inp.value).replace(",", "."));
+    if (!isFinite(v) || v === 0) { toast("Digite um valor antes de somar."); inp.focus(); return; }
+    if (!state.caucaoLanc[pid]) state.caucaoLanc[pid] = [];
+    state.caucaoLanc[pid].push({ v: v, d: today() });
+    repintarCaucao(pid);
+    var novo = document.querySelector('[data-add="' + pid + '"]');
+    if (novo) novo.focus();
+    toast((v > 0 ? "Somado " : "Descontado ") + money(Math.abs(v)) + " — total: " + money(caucaoDe(pid)));
+    save();
+  }
+
+  function removerLanc(pid, i) {
+    var l = state.caucaoLanc[pid];
+    if (!l || !l[i]) return;
+    l.splice(i, 1);
+    if (!l.length) delete state.caucaoLanc[pid];
+    repintarCaucao(pid);
+    toast("Lançamento removido — total: " + money(caucaoDe(pid)));
+    save();
   }
 
   function stampHTML() {
@@ -646,15 +824,24 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   }
 
   function buildDoc() {
-    var css = document.getElementById("app-css").textContent;
-    var js = document.getElementById("app-js").textContent;
+    var cssEl = document.getElementById("app-css");
+    var jsEl = document.getElementById("app-js");
+    if (!cssEl || !jsEl) {
+      throw new Error("A página carregou incompleta (faltou "
+        + (!cssEl ? "o estilo" : "o script")
+        + "). Recarregue segurando Shift e tente de novo.");
+    }
+    var css = cssEl.textContent;
+    var js = jsEl.textContent;
     var json = JSON.stringify(state, null, 2).replace(/</g, "\\u003c");
     var S = "scr" + "ipt";
     return '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n'
       + '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
       + "<title>Rateio da Casa</title>\n" + FONTS + "\n<style>" + css + "</style>\n</head>\n<body>\n"
       + "<" + S + ' type="application/json" id="app-state">\n' + json + "\n</" + S + ">\n"
-      + '<div id="root"></div>\n<div id="toast" role="status" aria-live="polite"></div>\n'
+      + '<div id="root"></div>\n'
+      + '<div id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title"></div>\n'
+      + '<div id="toast" role="status" aria-live="polite"></div>\n'
       + "<" + S + ' id="app-js">' + js + "</" + S + ">\n</body>\n</html>";
   }
 
@@ -668,24 +855,129 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     );
   }
 
-  function exportar() {
+  var htmlAtual = "", tipoAtual = "html";
+
+  function garantirModal() {
+    var m = document.getElementById("modal");
+    if (!m) {
+      m = document.createElement("div");
+      m.id = "modal";
+      m.setAttribute("role", "dialog");
+      m.setAttribute("aria-modal", "true");
+      document.body.appendChild(m);
+    }
+    return m;
+  }
+
+  function abrirModal(tipo) {
+    var m = garantirModal();
+    tipoAtual = tipo === "dados" ? "dados" : "html";
+    try {
+      stamp();
+      htmlAtual = tipoAtual === "dados" ? dadosJSON() : buildStatic();
+    } catch (err) {
+      m.innerHTML = '<div class="veil" data-fechar></div><div class="modal-box">'
+        + '<button type="button" class="modal-close" data-fechar aria-label="Fechar">&times;</button>'
+        + '<h3 id="m-title">Deu erro ao gerar</h3>'
+        + '<p class="modal-hint alerta">' + esc(String((err && err.message) || err))
+        + "</p><p>Tente recarregar a p&aacute;gina segurando Shift (ou Ctrl+Shift+R). "
+        + "Se continuar, copie a mensagem acima e mande no chat.</p></div>";
+      m.classList.add("on");
+      return;
+    }
+
+    var ehDados = tipoAtual === "dados";
+    m.innerHTML = '<div class="veil" data-fechar></div><div class="modal-box">'
+      + '<button type="button" class="modal-close" data-fechar aria-label="Fechar">&times;</button>'
+      + '<h3 id="m-title">' + (ehDados ? "Copiar dados" : "Atualizar o grupo") + "</h3>"
+      + (ehDados
+          ? "<p>S&atilde;o s&oacute; os n&uacute;meros &mdash; quem pagou o qu&ecirc; &mdash; sem as fotos. "
+            + "Copie e cole no chat antes de pedir qualquer altera&ccedil;&atilde;o na p&aacute;gina.</p>"
+          : "<p>Esta &eacute; a vers&atilde;o de leitura com os valores de agora, pronta pro GitHub.</p>")
+      + '<div class="modal-actions">'
+      + '<button type="button" class="btn btn-key" id="m-copiar">Copiar</button>'
+      + (dl && !ehDados ? '<button type="button" class="btn" id="m-baixar">Baixar o arquivo</button>' : "")
+      + "</div>"
+      + (ehDados ? ""
+          : "<ol><li>No seu reposit&oacute;rio, clique no arquivo <b>index.html</b>.</li>"
+            + "<li>Clique no <b>&iacute;cone de l&aacute;pis</b> (Edit this file), no canto superior direito.</li>"
+            + "<li>Selecione tudo (Ctrl+A) e cole por cima (Ctrl+V).</li>"
+            + "<li>Desça a p&aacute;gina e clique em <b>Commit changes</b>. Espere um minuto.</li></ol>")
+      + '<textarea id="m-code" readonly spellcheck="false" aria-label="Conte&uacute;do para copiar"></textarea>'
+      + '<p class="modal-hint" id="m-hint">O texto da caixa acima j&aacute; est&aacute; selecionado. Se o bot&atilde;o falhar, '
+      + "aperte Ctrl+C (ou Cmd+C) que funciona do mesmo jeito.</p></div>";
+
+    var ta = m.querySelector("#m-code");
+    if (ta) ta.value = htmlAtual;
+    m.classList.add("on");
+    selecionarCodigo();
+  }
+
+  function fecharModal() {
+    var m = document.getElementById("modal");
+    m.classList.remove("on");
+    m.innerHTML = "";
+    htmlAtual = "";
+  }
+
+  function dadosJSON() {
+    return JSON.stringify({
+      casa: state.casa, parcelas: state.parcelas, caucao: state.caucao,
+      pessoas: state.pessoas, pagos: state.pagos, caucaoLanc: state.caucaoLanc,
+      atualizadoEm: state.atualizadoEm
+    }, null, 1);
+  }
+
+  function selecionarCodigo() {
+    var ta = document.getElementById("m-code");
+    if (!ta) return null;
+    ta.focus();
+    ta.select();
+    try { ta.setSelectionRange(0, ta.value.length); } catch (e) {}
+    return ta;
+  }
+
+  function copiar() {
+    var ta = selecionarCodigo();
+    if (!ta) return;
+    var btn = document.getElementById("m-copiar");
+    function ok() {
+      toast("Código copiado — agora cole no GitHub");
+      if (btn) { btn.textContent = "Copiado ✓"; setTimeout(function () { btn.textContent = "Copiar o código"; }, 2500); }
+    }
+    function falhou() {
+      selecionarCodigo();
+      var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+      toast("O texto já está selecionado — aperte " + (mac ? "Cmd+C" : "Ctrl+C") + " agora.");
+      var hint = document.getElementById("m-hint");
+      if (hint) {
+        hint.innerHTML = "<b>O navegador bloqueou a cópia automática.</b> O texto da caixa já está todo selecionado — "
+          + "aperte <b>" + (mac ? "Cmd+C" : "Ctrl+C") + "</b> agora para copiar.";
+        hint.classList.add("alerta");
+      }
+    }
+    try { if (document.execCommand("copy")) { ok(); return; } } catch (e) {}
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(htmlAtual).then(ok)["catch"](falhou);
+    } else falhou();
+  }
+
+  function baixar() {
     if (!dl) return;
-    stamp();
-    var html = buildStatic();
-    dl.save({ filename: "index.html", data: html }).then(function () {
-      toast("Arquivo baixado — agora é só subir no GitHub");
+    dl.save({ filename: "index.html", data: htmlAtual }).then(function () {
+      toast("Arquivo baixado — suba no GitHub por Add file → Upload files");
     })["catch"](function (err) {
       var code = err && err.code;
       if (code === "declined") return;
       if (code === "extension_not_enabled" || code === "rejected_extension") {
-        dl.save({ filename: "index.html.txt", data: html }).then(function () {
+        dl.save({ filename: "index.html.txt", data: htmlAtual }).then(function () {
           toast('Baixado como .txt — renomeie para "index.html" antes de subir');
-        })["catch"](function () { toast("Não consegui gerar o arquivo agora."); });
+        })["catch"](function () { toast("Não deu pra baixar. Use o botão de copiar."); });
         return;
       }
-      if (code === "too_large") { toast("A página ficou grande demais — remova uma foto e tente de novo."); return; }
+      if (code === "too_large") { toast("Página grande demais pra baixar — use o botão de copiar."); return; }
       if (code === "rate_limited") { toast("Espere um instante e clique de novo."); return; }
-      toast("Não consegui gerar o arquivo agora.");
+      toast("Não deu pra baixar. Use o botão de copiar.");
     });
   }
 
@@ -725,8 +1017,17 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 
   /* ---------- eventos ---------- */
   document.addEventListener("click", function (e) {
-    if (!canEdit || !e.target.closest) return;
-    if (e.target.closest("#exportar")) { exportar(); return; }
+    if (!e.target.closest) return;
+    if (e.target.closest("[data-fechar]")) { fecharModal(); return; }
+    if (e.target.closest("#m-copiar")) { copiar(); return; }
+    if (e.target.closest("#m-baixar")) { baixar(); return; }
+    if (!canEdit) return;
+    if (e.target.closest("#exportar")) { abrirModal("html"); return; }
+    if (e.target.closest("#copiar-dados")) { abrirModal("dados"); return; }
+    var add = e.target.closest("[data-addbtn]");
+    if (add) { somarCaucao(add.dataset.addbtn); return; }
+    var rem = e.target.closest("[data-dellanc]");
+    if (rem) { var p = rem.dataset.dellanc.split("|"); removerLanc(p[0], +p[1]); return; }
     var del = e.target.closest("[data-delfoto]");
     if (del) {
       state.fotos.splice(+del.dataset.delfoto, 1);
@@ -746,8 +1047,8 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     if (!canEdit) return;
     var t = e.target;
     if (t.id === "foto-in" && t.files && t.files.length) {
-      var files = [].slice.call(t.files, 0, Math.max(0, 4 - state.fotos.length));
-      if (!files.length) { toast("Já são 4 fotos — remova uma antes"); t.value = ""; return; }
+      var files = [].slice.call(t.files, 0, Math.max(0, MAX_FOTOS - state.fotos.length));
+      if (!files.length) { toast("Já são " + MAX_FOTOS + " fotos — remova uma antes"); t.value = ""; return; }
       var left = files.length;
       toast(files.length > 1 ? "Preparando " + files.length + " fotos…" : "Preparando a foto…");
       files.forEach(function (f) {
@@ -775,27 +1076,25 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     }
   });
 
-  document.addEventListener("input", function (e) {
-    if (!canEdit) return;
-    var t = e.target;
-    if (!t.dataset || !t.dataset.cau) return;
-    var v = Math.max(0, parseFloat(String(t.value).replace(",", ".")) || 0);
-    if (v > 0) state.caucaoPago[t.dataset.cau] = v; else delete state.caucaoPago[t.dataset.cau];
-    var row = document.querySelector('[data-row="' + t.dataset.cau + '"]');
-    if (row) {
-      var alvo = +state.caucao.porPessoa || 0, f = alvo > 0 ? Math.min(1, v / alvo) : 0;
-      var bar = row.querySelector(".cau-bar");
-      bar.querySelector("i").style.width = Math.round(f * 100) + "%";
-      bar.classList.toggle("full", f >= 1);
-      var s = cauStatus(v, alvo), pill = row.querySelector(".pill");
-      pill.className = "pill " + s.cls;
-      pill.textContent = s.lbl;
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      var m = document.getElementById("modal");
+      if (m && m.classList.contains("on")) fecharModal();
+      return;
     }
-    var ft = document.querySelector(".cau-foot");
-    if (ft) ft.innerHTML = "<span>Alvo: <b>" + money(alvoCaucao()) + "</b> (" + nPess() + " x " + money(state.caucao.porPessoa) + ")</span>"
-      + "<span>Recebido: <b>" + money(recebidoCaucao()) + "</b> &middot; falta <b>" + money(Math.max(0, alvoCaucao() - recebidoCaucao())) + "</b></span>";
-    syncHero();
-    save();
+    if (e.key === "Enter" && canEdit && e.target && e.target.dataset && e.target.dataset.add) {
+      e.preventDefault();
+      somarCaucao(e.target.dataset.add);
+    }
+  });
+
+  /* qualquer erro não tratado vira aviso visível, pra não falhar em silêncio */
+  var jaAvisou = false;
+  window.addEventListener("error", function (ev) {
+    if (jaAvisou) return;
+    jaAvisou = true;
+    setTimeout(function () { jaAvisou = false; }, 6000);
+    toast("Erro: " + ((ev && ev.message) || "algo quebrou") + " — recarregue segurando Shift.");
   });
 
   render();
