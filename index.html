@@ -166,7 +166,7 @@ h1 {
 .hero {
   background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
   box-shadow: var(--shadow); padding: 24px; margin-bottom: 30px;
-  display: grid; grid-template-columns: auto auto 1fr; gap: 30px; align-items: center;
+  display: grid; grid-template-columns: auto auto auto 1fr; gap: 30px; align-items: center;
 }
 .ring { text-align: center; }
 .ring svg { display: block; margin: 0 auto; }
@@ -368,7 +368,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 @media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr 1fr; gap: 22px; }
+  .hero { grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
   .total-block { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--border); padding: 20px 0 0; }
   .strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .people { grid-template-columns: 1fr; }
@@ -507,41 +507,105 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     "p7:1": "2026-08-27",
     "p8:1": "2026-08-27",
     "p9:1": "2026-08-27",
-    "p10:1": "2026-08-27"
+    "p10:1": "2026-08-27",
+    "p7:2": "2026-10-05",
+    "p9:2": "2026-10-05",
+    "p4:2": "2026-10-05",
+    "p2:2": "2026-10-05",
+    "p1:2": "2026-10-05",
+    "p3:2": "2026-10-05",
+    "p6:2": "2026-10-05",
+    "p8:2": "2026-10-05",
+    "p10:2": "2026-10-05",
+    "p5:2": "2026-10-05"
   },
   "caucaoLanc": {
     "p1": [
       {
         "v": 98,
         "d": "2026-08-27"
+      },
+      {
+        "v": 98,
+        "d": "2026-10-05"
       }
     ],
     "p2": [
       {
         "v": 98,
         "d": "2026-08-27"
+      },
+      {
+        "v": 98,
+        "d": "2026-10-05"
       }
     ],
     "p3": [
       {
         "v": 98,
         "d": "2026-08-27"
+      },
+      {
+        "v": 98,
+        "d": "2026-10-05"
       }
     ],
     "p4": [
       {
         "v": 98,
         "d": "2026-08-27"
+      },
+      {
+        "v": 98,
+        "d": "2026-10-05"
       }
     ],
     "p10": [
       {
         "v": 98,
         "d": "2026-08-27"
+      },
+      {
+        "v": 98,
+        "d": "2026-10-05"
+      }
+    ],
+    "p5": [
+      {
+        "v": 98,
+        "d": "2026-10-05"
+      },
+      {
+        "v": 98,
+        "d": "2026-10-05"
       }
     ]
   },
-  "atualizadoEm": "2026-08-31T01:21:12.000Z"
+  "atualizadoEm": "2026-10-05T02:12:05.939Z",
+  "empregada": {
+    "porPessoa": 240,
+    "vencimento": "2026-12-15"
+  },
+  "empregadaLanc": {
+    "p1": [
+      {
+        "v": 60,
+        "d": "2026-10-04"
+      }
+    ],
+    "p2": [
+      {
+        "v": 60,
+        "d": "2026-10-04"
+      }
+    ],
+    "p4": [
+      {
+        "v": 60,
+        "d": "2026-10-04"
+      }
+    ]
+  }
 }
 </script>
 <div id="root"></div>
@@ -566,6 +630,24 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       if (v > 0 && !state.caucaoLanc[k]) state.caucaoLanc[k] = [{ v: v, d: "" }];
     });
     delete state.caucaoPago;
+  }
+  if (!state.empregada) state.empregada = { porPessoa: 240, vencimento: "2026-12-15" };
+  if (!state.empregadaLanc) state.empregadaLanc = {};
+
+  /* Fundos pagos aos poucos: alvo por pessoa + lista somável de lançamentos.
+     pre = prefixo das chaves data-add/data-row, pra não colidir entre fundos. */
+  var FUNDOS = {
+    caucao:    { cfg: "caucao",    lanc: "caucaoLanc",    nome: "Cau&ccedil;&atilde;o", txt: "caução",    pre: "" },
+    empregada: { cfg: "empregada", lanc: "empregadaLanc", nome: "Empregada",            txt: "empregada", pre: "emp:" }
+  };
+  var ORDEM_FUNDOS = ["caucao", "empregada"];
+  function chaveFundo(f, pid) { return FUNDOS[f].pre + pid; }
+  function lerChave(k) {
+    for (var i = 0; i < ORDEM_FUNDOS.length; i++) {
+      var f = ORDEM_FUNDOS[i], pre = FUNDOS[f].pre;
+      if (pre && k.indexOf(pre) === 0) return { f: f, pid: k.slice(pre.length) };
+    }
+    return { f: "caucao", pid: k };
   }
   var MAX_FOTOS = 5;
   var canEdit = false, api = null, dl = null, pending = null;
@@ -596,15 +678,16 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   function nParc() { return state.parcelas.length; }
   function somaParcela() { return state.pessoas.reduce(function (a, p) { return a + (+p.parcela || 0); }, 0); }
   function alvoParcelas() { return somaParcela() * nParc(); }
-  function alvoCaucao() { return (+state.caucao.porPessoa || 0) * nPess(); }
+  function porPessoaFundo(f) { return +state[FUNDOS[f].cfg].porPessoa || 0; }
+  function alvoFundo(f) { return porPessoaFundo(f) * nPess(); }
   function isPago(pid, n) { return Object.prototype.hasOwnProperty.call(state.pagos, pid + ":" + n); }
-  function lancsDe(pid) { return state.caucaoLanc[pid] || []; }
-  function caucaoDe(pid) {
-    return lancsDe(pid).reduce(function (a, l) { return a + (+l.v || 0); }, 0);
+  function lancsDe(f, pid) { return state[FUNDOS[f].lanc][pid] || []; }
+  function pagoFundo(f, pid) {
+    return lancsDe(f, pid).reduce(function (a, l) { return a + (+l.v || 0); }, 0);
   }
   function recebidoParcela(n) { return state.pessoas.reduce(function (a, p) { return a + (isPago(p.id, n) ? (+p.parcela || 0) : 0); }, 0); }
   function recebidoParcelas() { return state.parcelas.reduce(function (a, p) { return a + recebidoParcela(p.n); }, 0); }
-  function recebidoCaucao() { return state.pessoas.reduce(function (a, p) { return a + caucaoDe(p.id); }, 0); }
+  function recebidoFundo(f) { return state.pessoas.reduce(function (a, p) { return a + pagoFundo(f, p.id); }, 0); }
   function vencida(iso) { return !!iso && iso < today(); }
 
   function statusParcela(p) {
@@ -636,8 +719,8 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   function pct(a, b) { return b > 0 ? Math.round((a / b) * 100) : 0; }
 
   function heroHTML() {
-    var aP = alvoParcelas(), rP = recebidoParcelas(), aC = alvoCaucao(), rC = recebidoCaucao();
-    var aG = aP + aC, rG = rP + rC;
+    var aP = alvoParcelas(), rP = recebidoParcelas(), aG = aP, rG = rP;
+    ORDEM_FUNDOS.forEach(function (f) { aG += alvoFundo(f); rG += recebidoFundo(f); });
     var cols = ["var(--seg1)", "var(--seg2)", "var(--seg3)", "var(--seg4)", "var(--seg5)"];
     var segs = state.parcelas.map(function (p) { return somaParcela() > 0 ? recebidoParcela(p.n) / somaParcela() : 0; });
     var leg = '<div class="legend">' + state.parcelas.map(function (p, i) {
@@ -647,10 +730,13 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     return '<div class="ring"><p class="ring-label">Parcelas da casa</p>'
       + donut(segs, cols, pct(rP, aP) + "%", "recebido")
       + '<p class="ring-val"><b>' + money(rP) + "</b> de " + money(aP) + "</p>" + leg + "</div>"
-      + '<div class="ring"><p class="ring-label">Cau&ccedil;&atilde;o</p>'
-      + donut([aC > 0 ? rC / aC : 0], ["var(--accent)"], pct(rC, aC) + "%", "recebido")
-      + '<p class="ring-val"><b>' + money(rC) + "</b> de " + money(aC) + "</p>"
-      + '<div class="legend"><span>vence ' + br(state.caucao.vencimento, true) + "</span></div></div>"
+      + ORDEM_FUNDOS.map(function (f) {
+          var a = alvoFundo(f), r = recebidoFundo(f);
+          return '<div class="ring"><p class="ring-label">' + FUNDOS[f].nome + "</p>"
+            + donut([a > 0 ? r / a : 0], ["var(--accent)"], pct(r, a) + "%", "recebido")
+            + '<p class="ring-val"><b>' + money(r) + "</b> de " + money(a) + "</p>"
+            + '<div class="legend"><span>vence ' + br(state[FUNDOS[f].cfg].vencimento, true) + "</span></div></div>";
+        }).join("")
       + '<div class="total-block"><p class="total-k">Total geral em caixa</p>'
       + '<p class="hero-num">' + money(rG) + "</p>"
       + '<p class="hero-of">de <b>' + money(aG) + "</b> &middot; " + pct(rG, aG) + "% &middot; faltam <b>" + money(aG - rG) + "</b></p></div>";
@@ -724,16 +810,17 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     });
     h += "</div>";
 
-    /* caucao */
-    h += '<div class="sec-head"><h2>Cau&ccedil;&atilde;o</h2><span class="sec-note">'
-      + money(state.caucao.porPessoa) + " por pessoa &middot; vence " + brFull(state.caucao.vencimento)
-      + (canEdit ? "<br>Digite o valor recebido e clique em + para somar ao total" : "") + "</span></div>";
-    h += '<div class="cau">';
-    state.pessoas.forEach(function (pe) {
-      h += cauRowHTML(pe);
+    /* caução, empregada */
+    ORDEM_FUNDOS.forEach(function (f) {
+      h += '<div class="sec-head"><h2>' + FUNDOS[f].nome + '</h2><span class="sec-note">'
+        + money(porPessoaFundo(f)) + " por pessoa &middot; vence " + brFull(state[FUNDOS[f].cfg].vencimento)
+        + (canEdit ? "<br>Digite o valor recebido e clique em + para somar ao total" : "") + "</span></div>";
+      h += '<div class="cau">';
+      state.pessoas.forEach(function (pe) {
+        h += cauRowHTML(f, pe);
+      });
+      h += '<div class="cau-foot" data-foot="' + f + '">' + cauFootHTML(f) + "</div></div>";
     });
-    h += '<div class="cau-foot"><span>Alvo: <b>' + money(alvoCaucao()) + "</b> (" + nPess() + " x " + money(state.caucao.porPessoa) + ")</span>"
-      + "<span>Recebido: <b>" + money(recebidoCaucao()) + "</b> &middot; falta <b>" + money(Math.max(0, alvoCaucao() - recebidoCaucao())) + "</b></span></div></div>";
 
     /* ajustes */
     if (canEdit) {
@@ -748,6 +835,8 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
         + state.parcelas.map(function (p, i) { return fld("Parcela " + p.n, "date", "parcelas." + i + ".vencimento", p.vencimento); }).join("")
         + fld("Cau&ccedil;&atilde;o", "date", "caucao.vencimento", state.caucao.vencimento)
         + fld("Cau&ccedil;&atilde;o por pessoa", "number", "caucao.porPessoa", state.caucao.porPessoa)
+        + fld("Empregada", "date", "empregada.vencimento", state.empregada.vencimento)
+        + fld("Empregada por pessoa", "number", "empregada.porPessoa", state.empregada.porPessoa)
         + "</div></div>";
       h += '<div><p class="cfg-h">Nome e parcela de cada um</p><div class="cfg-grid">'
         + state.pessoas.map(function (pe, i) {
@@ -780,72 +869,80 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     document.getElementById("root").innerHTML = h;
   }
 
-  function cauRowHTML(pe) {
-    var alvo = +state.caucao.porPessoa || 0;
-    var pg = caucaoDe(pe.id);
+  function cauRowHTML(fu, pe) {
+    var alvo = porPessoaFundo(fu);
+    var pg = pagoFundo(fu, pe.id);
     var f = alvo > 0 ? Math.min(1, pg / alvo) : 0;
-    var s = cauStatus(pg, alvo);
-    var lancs = lancsDe(pe.id);
+    var s = cauStatus(fu, pg, alvo);
+    var lancs = lancsDe(fu, pe.id);
+    var k = chaveFundo(fu, pe.id), nome = FUNDOS[fu].nome;
 
     var chips = "";
     if (lancs.length) {
       chips = '<span class="cau-lancs">' + lancs.map(function (l, i) {
         var t = l.d ? "Lan&ccedil;ado em " + brFull(l.d) : "Lan&ccedil;amento";
         return canEdit
-          ? '<button type="button" class="lanc" data-dellanc="' + pe.id + "|" + i + '" title="' + t + ' &mdash; clique para remover">'
+          ? '<button type="button" class="lanc" data-dellanc="' + k + "|" + i + '" title="' + t + ' &mdash; clique para remover">'
               + money(l.v) + ' <span class="x">&times;</span></button>'
           : '<span class="lanc" title="' + t + '">' + money(l.v) + "</span>";
       }).join("") + "</span>";
     }
 
-    return '<div class="cau-row' + (chips ? " has-lancs" : "") + '" data-row="' + pe.id + '">'
+    return '<div class="cau-row' + (chips ? " has-lancs" : "") + '" data-row="' + k + '">'
       + '<span class="cau-name">' + esc(pe.nome) + "</span>"
       + '<span class="cau-tot"><b>' + money(pg) + '</b> <span class="of">de ' + money(alvo) + "</span></span>"
       + (canEdit
           ? '<span class="cau-add"><span class="cur">R$</span>'
-            + '<input type="number" inputmode="decimal" min="0" step="10" placeholder="0" data-add="' + pe.id + '"'
-            + ' aria-label="Valor a somar no cau&ccedil;&atilde;o de ' + esc(pe.nome) + '">'
-            + '<button type="button" class="plus" data-addbtn="' + pe.id + '" aria-label="Somar ao cau&ccedil;&atilde;o de ' + esc(pe.nome) + '">+</button></span>'
+            + '<input type="number" inputmode="decimal" min="0" step="10" placeholder="0" data-add="' + k + '"'
+            + ' aria-label="Valor a somar em ' + nome + " de " + esc(pe.nome) + '">'
+            + '<button type="button" class="plus" data-addbtn="' + k + '" aria-label="Somar em ' + nome + " de " + esc(pe.nome) + '">+</button></span>'
           : "")
       + '<span class="cau-bar' + (f >= 1 ? " full" : "") + '"><i style="width:' + Math.round(f * 100) + '%"></i></span>'
       + '<span class="cau-st"><span class="pill ' + s.cls + '">' + s.lbl + "</span></span>"
       + chips + "</div>";
   }
 
-  function repintarCaucao(pid) {
-    var row = document.querySelector('[data-row="' + pid + '"]');
+  function cauFootHTML(f) {
+    var a = alvoFundo(f), r = recebidoFundo(f);
+    return "<span>Alvo: <b>" + money(a) + "</b> (" + nPess() + " x " + money(porPessoaFundo(f)) + ")</span>"
+      + "<span>Recebido: <b>" + money(r) + "</b> &middot; falta <b>" + money(Math.max(0, a - r)) + "</b></span>";
+  }
+
+  function repintarFundo(f, pid) {
+    var row = document.querySelector('[data-row="' + chaveFundo(f, pid) + '"]');
     if (!row) return;
     var pe = null;
     for (var i = 0; i < state.pessoas.length; i++) if (state.pessoas[i].id === pid) pe = state.pessoas[i];
     if (!pe) return;
-    row.outerHTML = cauRowHTML(pe);
-    var ft = document.querySelector(".cau-foot");
-    if (ft) ft.innerHTML = "<span>Alvo: <b>" + money(alvoCaucao()) + "</b> (" + nPess() + " x " + money(state.caucao.porPessoa) + ")</span>"
-      + "<span>Recebido: <b>" + money(recebidoCaucao()) + "</b> &middot; falta <b>" + money(Math.max(0, alvoCaucao() - recebidoCaucao())) + "</b></span>";
+    row.outerHTML = cauRowHTML(f, pe);
+    var ft = document.querySelector('[data-foot="' + f + '"]');
+    if (ft) ft.innerHTML = cauFootHTML(f);
     syncHero();
   }
 
-  function somarCaucao(pid) {
-    var inp = document.querySelector('[data-add="' + pid + '"]');
+  function somarFundo(k) {
+    var c = lerChave(k), f = c.f, pid = c.pid, lanc = state[FUNDOS[f].lanc];
+    var inp = document.querySelector('[data-add="' + k + '"]');
     if (!inp) return;
     var v = parseFloat(String(inp.value).replace(",", "."));
     if (!isFinite(v) || v === 0) { toast("Digite um valor antes de somar."); inp.focus(); return; }
-    if (!state.caucaoLanc[pid]) state.caucaoLanc[pid] = [];
-    state.caucaoLanc[pid].push({ v: v, d: today() });
-    repintarCaucao(pid);
-    var novo = document.querySelector('[data-add="' + pid + '"]');
+    if (!lanc[pid]) lanc[pid] = [];
+    lanc[pid].push({ v: v, d: today() });
+    repintarFundo(f, pid);
+    var novo = document.querySelector('[data-add="' + k + '"]');
     if (novo) novo.focus();
-    toast((v > 0 ? "Somado " : "Descontado ") + money(Math.abs(v)) + " — total: " + money(caucaoDe(pid)));
+    toast((v > 0 ? "Somado " : "Descontado ") + money(Math.abs(v)) + " (" + FUNDOS[f].txt + ") — total: " + money(pagoFundo(f, pid)));
     save();
   }
 
-  function removerLanc(pid, i) {
-    var l = state.caucaoLanc[pid];
+  function removerLanc(k, i) {
+    var c = lerChave(k), f = c.f, pid = c.pid, lanc = state[FUNDOS[f].lanc];
+    var l = lanc[pid];
     if (!l || !l[i]) return;
     l.splice(i, 1);
-    if (!l.length) delete state.caucaoLanc[pid];
-    repintarCaucao(pid);
-    toast("Lançamento removido — total: " + money(caucaoDe(pid)));
+    if (!l.length) delete lanc[pid];
+    repintarFundo(f, pid);
+    toast("Lançamento removido (" + FUNDOS[f].txt + ") — total: " + money(pagoFundo(f, pid)));
     save();
   }
 
@@ -863,9 +960,9 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     if (el) el.innerHTML = stampHTML();
   }
 
-  function cauStatus(pg, alvo) {
+  function cauStatus(f, pg, alvo) {
     if (pg >= alvo && alvo > 0) return { cls: "done", lbl: "Quitado" };
-    if (vencida(state.caucao.vencimento)) return { cls: "late", lbl: pg > 0 ? "Parcial, atrasado" : "Atrasado" };
+    if (vencida(state[FUNDOS[f].cfg].vencimento)) return { cls: "late", lbl: pg > 0 ? "Parcial, atrasado" : "Atrasado" };
     if (pg > 0) return { cls: "part", lbl: "Parcial" };
     return { cls: "open", lbl: "Em aberto" };
   }
@@ -1055,7 +1152,9 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   function dadosJSON() {
     return JSON.stringify({
       casa: state.casa, parcelas: state.parcelas, caucao: state.caucao,
+      empregada: state.empregada,
       pessoas: state.pessoas, pagos: state.pagos, caucaoLanc: state.caucaoLanc,
+      empregadaLanc: state.empregadaLanc,
       atualizadoEm: state.atualizadoEm
     }, null, 1);
   }
@@ -1163,7 +1262,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     if (e.target.closest("#exportar")) { abrirModal("html"); return; }
     if (e.target.closest("#copiar-dados")) { abrirModal("dados"); return; }
     var add = e.target.closest("[data-addbtn]");
-    if (add) { somarCaucao(add.dataset.addbtn); return; }
+    if (add) { somarFundo(add.dataset.addbtn); return; }
     var rem = e.target.closest("[data-dellanc]");
     if (rem) { var p = rem.dataset.dellanc.split("|"); removerLanc(p[0], +p[1]); return; }
     var del = e.target.closest("[data-delfoto]");
@@ -1229,7 +1328,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     }
     if (e.key === "Enter" && canEdit && e.target && e.target.dataset && e.target.dataset.add) {
       e.preventDefault();
-      somarCaucao(e.target.dataset.add);
+      somarFundo(e.target.dataset.add);
     }
   });
 
