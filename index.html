@@ -233,6 +233,9 @@ button.chip:active { transform: scale(.95); }
 .chip.paid { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 .chip.late { background: var(--late-soft); border-color: var(--late); color: var(--late); }
 .chip .mk { font-size: 11px; }
+.chip .cn { font-size: 10.5px; opacity: .7; }
+.chips:has(.cn) { gap: 5px; }
+.chips:has(.cn) .chip { padding: 6px 7px; gap: 4px; font-size: 11.5px; }
 
 /* ---------- caucao ---------- */
 .cau { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 34px; }
@@ -674,7 +677,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       }
     ]
   },
-  "atualizadoEm": "2026-10-29T14:47:42.461Z",
+  "atualizadoEm": "2026-10-29T14:53:00.528Z",
   "empregada": {
     "porPessoa": 205,
     "vencimento": "2026-12-15"
@@ -904,7 +907,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
         var mk = pago ? "&#10003;" : atras ? "!" : "";
         var ttl = pago ? "Parcela " + p.n + " (" + money(v) + ") paga em " + brFull(state.pagos[pe.id + ":" + p.n])
           : "Parcela " + p.n + " (" + money(v) + ") &middot; vence " + brFull(p.vencimento);
-        var body = p.n + (mk ? ' <span class="mk">' + mk + "</span>" : "");
+        var body = '<span class="cn">P' + p.n + '</span> ' + money(v) + (mk ? ' <span class="mk">' + mk + "</span>" : "");
         h += canEdit
           ? '<button type="button" class="' + cls + '" data-p="' + pe.id + '" data-n="' + p.n + '" aria-pressed="' + pago + '" title="' + ttl + '">' + body + "</button>"
           : '<span class="' + cls + '" title="' + ttl + '">' + body + "</span>";
