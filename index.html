@@ -304,6 +304,9 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   border-radius: 8px; padding: 7px 9px; font: 400 13.5px/1.3 "IBM Plex Sans", system-ui, sans-serif; width: 100%;
 }
 .fld input[type="number"], .fld input[type="date"] { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.vals { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.vals input { padding-left: 4px; padding-right: 4px; text-align: center; min-width: 0; }
+.cfg-pess { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
 .fld input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 .cfg-h { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); margin: 0 0 9px; }
 .cfg-sum { font-size: 12.5px; color: var(--text-muted); margin: 9px 0 0; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
@@ -420,59 +423,149 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     }
   ],
   "caucao": {
-    "porPessoa": 490,
+    "porPessoa": 410,
     "vencimento": "2026-12-24"
   },
   "pessoas": [
     {
       "id": "p1",
       "nome": "Leo",
-      "parcela": 760
+      "parcela": 760,
+      "valores": {
+        "1": 760,
+        "2": 760,
+        "3": 494,
+        "4": 494,
+        "5": 494
+      }
     },
     {
       "id": "p2",
       "nome": "Rafa",
-      "parcela": 760
+      "parcela": 760,
+      "valores": {
+        "1": 760,
+        "2": 760,
+        "3": 494,
+        "4": 494,
+        "5": 494
+      }
     },
     {
       "id": "p3",
       "nome": "Leticia",
-      "parcela": 720
+      "parcela": 720,
+      "valores": {
+        "1": 720,
+        "2": 720,
+        "3": 720,
+        "4": 420,
+        "5": 420
+      }
     },
     {
       "id": "p4",
       "nome": "Luiz",
-      "parcela": 760
+      "parcela": 760,
+      "valores": {
+        "1": 760,
+        "2": 760,
+        "3": 494,
+        "4": 494,
+        "5": 494
+      }
     },
     {
       "id": "p5",
       "nome": "Juca",
-      "parcela": 720
+      "parcela": 720,
+      "valores": {
+        "1": 720,
+        "2": 720,
+        "3": 520,
+        "4": 520,
+        "5": 520
+      }
     },
     {
       "id": "p6",
       "nome": "Guibson",
-      "parcela": 720
+      "parcela": 720,
+      "valores": {
+        "1": 720,
+        "2": 720,
+        "3": 520,
+        "4": 520,
+        "5": 520
+      }
     },
     {
       "id": "p7",
       "nome": "Ana Clara",
-      "parcela": 720
+      "parcela": 720,
+      "valores": {
+        "1": 720,
+        "2": 720,
+        "3": 520,
+        "4": 520,
+        "5": 520
+      }
     },
     {
       "id": "p8",
       "nome": "Bolivia",
-      "parcela": 720
+      "parcela": 720,
+      "valores": {
+        "1": 720,
+        "2": 720,
+        "3": 520,
+        "4": 520,
+        "5": 520
+      }
     },
     {
       "id": "p9",
       "nome": "Valentin",
-      "parcela": 600
+      "parcela": 600,
+      "valores": {
+        "1": 600,
+        "2": 600,
+        "3": 600,
+        "4": 600,
+        "5": 600
+      }
     },
     {
       "id": "p10",
       "nome": "Froes",
-      "parcela": 720
+      "parcela": 720,
+      "valores": {
+        "1": 720,
+        "2": 720,
+        "3": 520,
+        "4": 520,
+        "5": 520
+      }
+    },
+    {
+      "id": "p11",
+      "nome": "Ana",
+      "parcela": 1000,
+      "valores": {
+        "3": 1000,
+        "4": 1000,
+        "5": 1000
+      }
+    },
+    {
+      "id": "p12",
+      "nome": "Julie",
+      "parcela": 1000,
+      "valores": {
+        "3": 1000,
+        "4": 1000,
+        "5": 1000
+      }
     }
   ],
   "fotos": [
@@ -581,9 +674,9 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       }
     ]
   },
-  "atualizadoEm": "2026-10-05T02:12:05.939Z",
+  "atualizadoEm": "2026-10-29T14:32:38.933Z",
   "empregada": {
-    "porPessoa": 240,
+    "porPessoa": 200,
     "vencimento": "2026-12-15"
   },
   "empregadaLanc": {
@@ -676,8 +769,17 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 
   function nPess() { return state.pessoas.length; }
   function nParc() { return state.parcelas.length; }
-  function somaParcela() { return state.pessoas.reduce(function (a, p) { return a + (+p.parcela || 0); }, 0); }
-  function alvoParcelas() { return somaParcela() * nParc(); }
+  /* valor de cada pessoa em cada parcela; sem valor = parcela não se aplica a ela */
+  function valorDe(pe, n) {
+    if (!pe.valores) return +pe.parcela || 0;
+    var v = pe.valores[n];
+    return v == null || v === "" ? null : (+v || 0);
+  }
+  function aplica(pe, n) { return valorDe(pe, n) !== null; }
+  function quemDeve(n) { return state.pessoas.filter(function (p) { return aplica(p, n); }); }
+  function somaParcela(n) { return quemDeve(n).reduce(function (a, p) { return a + valorDe(p, n); }, 0); }
+  function alvoParcelas() { return state.parcelas.reduce(function (a, p) { return a + somaParcela(p.n); }, 0); }
+  function totalPessoa(pe) { return state.parcelas.reduce(function (a, p) { return a + (valorDe(pe, p.n) || 0); }, 0); }
   function porPessoaFundo(f) { return +state[FUNDOS[f].cfg].porPessoa || 0; }
   function alvoFundo(f) { return porPessoaFundo(f) * nPess(); }
   function isPago(pid, n) { return Object.prototype.hasOwnProperty.call(state.pagos, pid + ":" + n); }
@@ -685,14 +787,14 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   function pagoFundo(f, pid) {
     return lancsDe(f, pid).reduce(function (a, l) { return a + (+l.v || 0); }, 0);
   }
-  function recebidoParcela(n) { return state.pessoas.reduce(function (a, p) { return a + (isPago(p.id, n) ? (+p.parcela || 0) : 0); }, 0); }
+  function recebidoParcela(n) { return quemDeve(n).reduce(function (a, p) { return a + (isPago(p.id, n) ? valorDe(p, n) : 0); }, 0); }
   function recebidoParcelas() { return state.parcelas.reduce(function (a, p) { return a + recebidoParcela(p.n); }, 0); }
   function recebidoFundo(f) { return state.pessoas.reduce(function (a, p) { return a + pagoFundo(f, p.id); }, 0); }
   function vencida(iso) { return !!iso && iso < today(); }
 
   function statusParcela(p) {
-    var c = state.pessoas.filter(function (x) { return isPago(x.id, p.n); }).length;
-    if (c === nPess() && nPess() > 0) return "done";
+    var q = quemDeve(p.n), c = q.filter(function (x) { return isPago(x.id, p.n); }).length;
+    if (c === q.length && q.length > 0) return "done";
     return vencida(p.vencimento) ? "late" : "open";
   }
 
@@ -722,7 +824,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     var aP = alvoParcelas(), rP = recebidoParcelas(), aG = aP, rG = rP;
     ORDEM_FUNDOS.forEach(function (f) { aG += alvoFundo(f); rG += recebidoFundo(f); });
     var cols = ["var(--seg1)", "var(--seg2)", "var(--seg3)", "var(--seg4)", "var(--seg5)"];
-    var segs = state.parcelas.map(function (p) { return somaParcela() > 0 ? recebidoParcela(p.n) / somaParcela() : 0; });
+    var segs = state.parcelas.map(function (p) { var a = somaParcela(p.n); return a > 0 ? recebidoParcela(p.n) / a : 0; });
     var leg = '<div class="legend">' + state.parcelas.map(function (p, i) {
       return '<span><i style="background:' + cols[i % cols.length] + '"></i>P' + p.n + "</span>";
     }).join("") + "</div>";
@@ -769,16 +871,16 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     h += '<section class="hero" id="hero">' + heroHTML() + "</section>";
 
     /* por parcela */
-    h += '<div class="sec-head"><h2>Por parcela</h2><span class="sec-note">' + money(somaParcela()) + " por parcela, somando os " + nPess() + "</span></div>";
+    h += '<div class="sec-head"><h2>Por parcela</h2><span class="sec-note">' + money(alvoParcelas()) + " no total, somando os " + nPess() + "</span></div>";
     h += '<div class="strip">';
     var yy = spansYears();
     state.parcelas.forEach(function (p) {
       var st = statusParcela(p);
-      var c = state.pessoas.filter(function (x) { return isPago(x.id, p.n); }).length;
+      var q = quemDeve(p.n), c = q.filter(function (x) { return isPago(x.id, p.n); }).length;
       var lbl = st === "done" ? "Quitada" : st === "late" ? "Atrasada" : "A vencer";
       h += '<div class="pcard s-' + st + '"><p class="pn">Parcela ' + p.n + "</p>"
         + '<p class="pd">' + br(p.vencimento, yy) + "</p>"
-        + '<p class="pc">' + c + " de " + nPess() + " &middot; " + money(recebidoParcela(p.n)) + "</p>"
+        + '<p class="pc">' + c + " de " + q.length + " &middot; " + money(recebidoParcela(p.n)) + " de " + money(somaParcela(p.n)) + "</p>"
         + '<span class="pill ' + st + '">' + lbl + "</span></div>";
     });
     h += "</div>";
@@ -788,14 +890,15 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       + (canEdit ? "Toque numa parcela para dar baixa" : "Fale com o organizador para corrigir algo") + "</span></div>";
     h += '<div class="people">';
     state.pessoas.forEach(function (pe) {
-      var v = +pe.parcela || 0, total = v * nParc();
-      var pagas = state.parcelas.filter(function (p) { return isPago(pe.id, p.n); }).length;
+      var minhas = state.parcelas.filter(function (p) { return aplica(pe, p.n); });
+      var total = totalPessoa(pe), pagas = 0, pagoV = 0;
+      minhas.forEach(function (p) { if (isPago(pe.id, p.n)) { pagas++; pagoV += valorDe(pe, p.n); } });
       h += '<article class="person"><div class="person-top">'
         + '<span class="person-name">' + esc(pe.nome) + "</span>"
-        + '<span class="person-val"><b>' + money(pagas * v) + "</b> de " + money(total) + "</span></div>"
-        + '<div class="mini"><i style="width:' + (nParc() ? Math.round((pagas / nParc()) * 100) : 0) + '%"></i></div><div class="chips">';
-      state.parcelas.forEach(function (p) {
-        var pago = isPago(pe.id, p.n);
+        + '<span class="person-val"><b>' + money(pagoV) + "</b> de " + money(total) + "</span></div>"
+        + '<div class="mini"><i style="width:' + (minhas.length ? Math.round((pagas / minhas.length) * 100) : 0) + '%"></i></div><div class="chips">';
+      minhas.forEach(function (p) {
+        var v = valorDe(pe, p.n), pago = isPago(pe.id, p.n);
         var atras = !pago && vencida(p.vencimento);
         var cls = "chip" + (pago ? " paid" : atras ? " late" : "");
         var mk = pago ? "&#10003;" : atras ? "!" : "";
@@ -838,13 +941,16 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
         + fld("Empregada", "date", "empregada.vencimento", state.empregada.vencimento)
         + fld("Empregada por pessoa", "number", "empregada.porPessoa", state.empregada.porPessoa)
         + "</div></div>";
-      h += '<div><p class="cfg-h">Nome e parcela de cada um</p><div class="cfg-grid">'
+      h += '<div><p class="cfg-h">Nome e valor de cada parcela</p><div class="cfg-grid cfg-pess">'
         + state.pessoas.map(function (pe, i) {
-            return '<span class="fld"><label for="f-pessoas.' + i + '.parcela">' + esc(pe.nome) + "</label>"
-              + '<input type="text" data-cfg="pessoas.' + i + '.nome" value="' + esc(pe.nome) + '" aria-label="Nome" style="margin-bottom:5px">'
-              + '<input id="f-pessoas.' + i + '.parcela" type="number" min="0" step="10" inputmode="decimal" data-cfg="pessoas.' + i + '.parcela" value="' + esc(pe.parcela) + '" aria-label="Valor da parcela"></span>';
+            return '<span class="fld"><label for="f-pessoas.' + i + '.nome">' + esc(pe.nome) + " &middot; " + money(totalPessoa(pe)) + "</label>"
+              + '<input id="f-pessoas.' + i + '.nome" type="text" data-cfg="pessoas.' + i + '.nome" value="' + esc(pe.nome) + '" aria-label="Nome">'
+              + '<span class="vals">' + state.parcelas.map(function (p) {
+                  var v = valorDe(pe, p.n);
+                  return '<input type="number" min="0" step="1" inputmode="decimal" placeholder="P' + p.n + '" data-cfg="pessoas.' + i + ".valores." + p.n + '" value="' + (v === null ? "" : esc(v)) + '" aria-label="' + esc(pe.nome) + " parcela " + p.n + '" title="Parcela ' + p.n + '">';
+                }).join("") + "</span></span>";
           }).join("")
-        + '</div><p class="cfg-sum">Soma por parcela: ' + money(somaParcela()) + " &middot; total das " + nParc() + " parcelas: " + money(alvoParcelas()) + "</p></div>";
+        + '</div><p class="cfg-sum">Cada caixa &eacute; uma parcela (P1 a P' + nParc() + '). Deixe vazia quando a parcela n&atilde;o vale para a pessoa. Total das ' + nParc() + " parcelas: " + money(alvoParcelas()) + "</p></div>";
       h += '<div><p class="cfg-h">Fotos da turma (at&eacute; 5)</p>'
         + (state.fotos.length
             ? '<div class="thumbs">' + state.fotos.map(function (f, i) {
@@ -1303,7 +1409,12 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     }
     if (t.dataset && t.dataset.cfg) {
       var v = t.type === "number" ? Math.max(0, parseFloat(String(t.value).replace(",", ".")) || 0) : t.value;
-      setPath(t.dataset.cfg, v);
+      var mv = /^pessoas\.(\d+)\.valores\.(\d+)$/.exec(t.dataset.cfg);
+      if (mv) {
+        var pv = state.pessoas[+mv[1]];
+        if (!pv.valores) { pv.valores = {}; state.parcelas.forEach(function (p) { pv.valores[p.n] = +pv.parcela || 0; }); }
+        if (String(t.value).trim() === "") delete pv.valores[mv[2]]; else pv.valores[mv[2]] = v;
+      } else setPath(t.dataset.cfg, v);
       var d2 = document.querySelector("details.cfg");
       var open = d2 && d2.open;
       render();
