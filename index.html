@@ -166,7 +166,7 @@ h1 {
 .hero {
   background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
   box-shadow: var(--shadow); padding: 24px; margin-bottom: 30px;
-  display: grid; grid-template-columns: auto auto auto 1fr; gap: 30px; align-items: center;
+  display: grid; grid-template-columns: auto auto auto auto 1fr; gap: 26px; align-items: center;
 }
 .ring { text-align: center; }
 .ring svg { display: block; margin: 0 auto; }
@@ -374,7 +374,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 @media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .hero { grid-template-columns: repeat(4, 1fr); gap: 18px; }
   .total-block { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--border); padding: 20px 0 0; }
   .strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .people { grid-template-columns: 1fr; }
@@ -382,9 +382,12 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   .cau-bar { display: none; }
   .cau-st { grid-column: 2 / -1; text-align: left; }
 }
+@media (max-width: 680px) {
+  .hero { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 460px) {
   #root { padding: 20px 14px 60px; }
-  .hero { grid-template-columns: 1fr; }
+  .hero { gap: 18px 10px; padding: 20px 12px; }
   .cau-row { grid-template-columns: 1fr 148px; row-gap: 7px; }
   .cau-tot { grid-column: 1; }
   .cau-add { grid-column: 2; grid-row: 1 / 3; }
@@ -741,7 +744,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       }
     ]
   },
-  "atualizadoEm": "2026-10-30T18:38:36.179Z",
+  "atualizadoEm": "2026-10-30T19:59:42.460Z",
   "empregada": {
     "porPessoa": 205,
     "vencimento": "2026-12-15"
@@ -823,7 +826,27 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
         "d": "2026-10-30"
       }
     ]
-  }
+  },
+  "van": {
+    "porPessoa": 526,
+    "entrada": 158,
+    "vencimento": "",
+    "extras": [
+      {
+        "id": "enrico",
+        "nome": "Enrico",
+        "alvo": 350,
+        "entrada": 105
+      },
+      {
+        "id": "elo",
+        "nome": "Elo",
+        "alvo": 350,
+        "entrada": 105
+      }
+    ]
+  },
+  "vanLanc": {}
 }
 </script>
 <div id="root"></div>
@@ -851,14 +874,17 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   }
   if (!state.empregada) state.empregada = { porPessoa: 240, vencimento: "2026-12-15" };
   if (!state.empregadaLanc) state.empregadaLanc = {};
+  if (!state.van) state.van = { porPessoa: 0, entrada: 0, vencimento: "", extras: [] };
+  if (!state.vanLanc) state.vanLanc = {};
 
   /* Fundos pagos aos poucos: alvo por pessoa + lista somável de lançamentos.
      pre = prefixo das chaves data-add/data-row, pra não colidir entre fundos. */
   var FUNDOS = {
     caucao:    { cfg: "caucao",    lanc: "caucaoLanc",    nome: "Cau&ccedil;&atilde;o", txt: "caução",    pre: "" },
-    empregada: { cfg: "empregada", lanc: "empregadaLanc", nome: "Empregada",            txt: "empregada", pre: "emp:" }
+    empregada: { cfg: "empregada", lanc: "empregadaLanc", nome: "Empregada",            txt: "empregada", pre: "emp:" },
+    van:       { cfg: "van",       lanc: "vanLanc",       nome: "Van",                  txt: "van",       pre: "van:" }
   };
-  var ORDEM_FUNDOS = ["caucao", "empregada"];
+  var ORDEM_FUNDOS = ["caucao", "empregada", "van"];
   function chaveFundo(f, pid) { return FUNDOS[f].pre + pid; }
   function lerChave(k) {
     for (var i = 0; i < ORDEM_FUNDOS.length; i++) {
@@ -906,7 +932,11 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   function alvoParcelas() { return state.parcelas.reduce(function (a, p) { return a + somaParcela(p.n); }, 0); }
   function totalPessoa(pe) { return state.parcelas.reduce(function (a, p) { return a + (valorDe(pe, p.n) || 0); }, 0); }
   function porPessoaFundo(f) { return +state[FUNDOS[f].cfg].porPessoa || 0; }
-  function alvoFundo(f) { return porPessoaFundo(f) * nPess(); }
+  /* quem entra no fundo: a turma toda + quem só participa dele (extras, com valor próprio) */
+  function pessoasFundo(f) { return state.pessoas.concat(state[FUNDOS[f].cfg].extras || []); }
+  function alvoPessoa(f, pe) { return pe.alvo != null ? +pe.alvo || 0 : porPessoaFundo(f); }
+  function entradaPessoa(f, pe) { return pe.entrada != null ? +pe.entrada || 0 : +state[FUNDOS[f].cfg].entrada || 0; }
+  function alvoFundo(f) { return pessoasFundo(f).reduce(function (a, p) { return a + alvoPessoa(f, p); }, 0); }
   function isPago(pid, n) { return Object.prototype.hasOwnProperty.call(state.pagos, pid + ":" + n); }
   function lancsDe(f, pid) { return state[FUNDOS[f].lanc][pid] || []; }
   function pagoFundo(f, pid) {
@@ -914,7 +944,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
   }
   function recebidoParcela(n) { return quemDeve(n).reduce(function (a, p) { return a + (isPago(p.id, n) ? valorDe(p, n) : 0); }, 0); }
   function recebidoParcelas() { return state.parcelas.reduce(function (a, p) { return a + recebidoParcela(p.n); }, 0); }
-  function recebidoFundo(f) { return state.pessoas.reduce(function (a, p) { return a + pagoFundo(f, p.id); }, 0); }
+  function recebidoFundo(f) { return pessoasFundo(f).reduce(function (a, p) { return a + pagoFundo(f, p.id); }, 0); }
   function vencida(iso) { return !!iso && iso < today(); }
 
   function statusParcela(p) {
@@ -962,7 +992,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
           return '<div class="ring"><p class="ring-label">' + FUNDOS[f].nome + "</p>"
             + donut([a > 0 ? r / a : 0], ["var(--accent)"], pct(r, a) + "%", "recebido")
             + '<p class="ring-val"><b>' + money(r) + "</b> de " + money(a) + "</p>"
-            + '<div class="legend"><span>vence ' + br(state[FUNDOS[f].cfg].vencimento, true) + "</span></div></div>";
+            + '<div class="legend"><span>' + (state[FUNDOS[f].cfg].vencimento ? "vence " + br(state[FUNDOS[f].cfg].vencimento, true) : "entrada + restante") + "</span></div></div>";
         }).join("")
       + '<div class="total-block"><p class="total-k">Total geral em caixa</p>'
       + '<p class="hero-num">' + money(rG) + "</p>"
@@ -1038,13 +1068,13 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     });
     h += "</div>";
 
-    /* caução, empregada */
+    /* caução, empregada, van */
     ORDEM_FUNDOS.forEach(function (f) {
       h += '<div class="sec-head"><h2>' + FUNDOS[f].nome + '</h2><span class="sec-note">'
-        + money(porPessoaFundo(f)) + " por pessoa &middot; vence " + brFull(state[FUNDOS[f].cfg].vencimento)
+        + notaFundo(f)
         + (canEdit ? "<br>Digite o valor recebido e clique em + para somar ao total" : "") + "</span></div>";
       h += '<div class="cau">';
-      state.pessoas.forEach(function (pe) {
+      pessoasFundo(f).forEach(function (pe) {
         h += cauRowHTML(f, pe);
       });
       h += '<div class="cau-foot" data-foot="' + f + '">' + cauFootHTML(f) + "</div></div>";
@@ -1065,6 +1095,9 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
         + fld("Cau&ccedil;&atilde;o por pessoa", "number", "caucao.porPessoa", state.caucao.porPessoa)
         + fld("Empregada", "date", "empregada.vencimento", state.empregada.vencimento)
         + fld("Empregada por pessoa", "number", "empregada.porPessoa", state.empregada.porPessoa)
+        + fld("Van por pessoa", "number", "van.porPessoa", state.van.porPessoa)
+        + fld("Van entrada", "number", "van.entrada", state.van.entrada)
+        + fld("Van restante vence", "date", "van.vencimento", state.van.vencimento)
         + "</div></div>";
       h += '<div><p class="cfg-h">Nome e valor de cada parcela</p><div class="cfg-grid cfg-pess">'
         + state.pessoas.map(function (pe, i) {
@@ -1100,11 +1133,21 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     document.getElementById("root").innerHTML = h;
   }
 
+  function notaFundo(f) {
+    var c = state[FUNDOS[f].cfg], pp = porPessoaFundo(f), ent = +c.entrada || 0;
+    var t = money(pp) + " por pessoa";
+    if (ent > 0) t += " (" + money(ent) + " de entrada + " + money(pp - ent) + " depois)";
+    (c.extras || []).forEach(function (x) {
+      var a = alvoPessoa(f, x), e = entradaPessoa(f, x);
+      t += " &middot; " + esc(x.nome) + ": " + money(a) + (e > 0 ? " (" + money(e) + " + " + money(a - e) + ")" : "");
+    });
+    return t + (c.vencimento ? " &middot; vence " + brFull(c.vencimento) : ent > 0 ? "" : "");
+  }
   function cauRowHTML(fu, pe) {
-    var alvo = porPessoaFundo(fu);
+    var alvo = alvoPessoa(fu, pe);
     var pg = pagoFundo(fu, pe.id);
     var f = alvo > 0 ? Math.min(1, pg / alvo) : 0;
-    var s = cauStatus(fu, pg, alvo);
+    var s = cauStatus(fu, pg, alvo, entradaPessoa(fu, pe));
     var lancs = lancsDe(fu, pe.id);
     var k = chaveFundo(fu, pe.id), nome = FUNDOS[fu].nome;
 
@@ -1135,7 +1178,14 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
 
   function cauFootHTML(f) {
     var a = alvoFundo(f), r = recebidoFundo(f);
-    return "<span>Alvo: <b>" + money(a) + "</b> (" + nPess() + " x " + money(porPessoaFundo(f)) + ")</span>"
+    var grupos = {}, ordem = [];
+    pessoasFundo(f).forEach(function (p) {
+      var v = alvoPessoa(f, p);
+      if (!grupos[v]) { grupos[v] = 0; ordem.push(v); }
+      grupos[v]++;
+    });
+    var conta = ordem.map(function (v) { return grupos[v] + " x " + money(v); }).join(" + ");
+    return "<span>Alvo: <b>" + money(a) + "</b> (" + conta + ")</span>"
       + "<span>Recebido: <b>" + money(r) + "</b> &middot; falta <b>" + money(Math.max(0, a - r)) + "</b></span>";
   }
 
@@ -1143,7 +1193,8 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     var row = document.querySelector('[data-row="' + chaveFundo(f, pid) + '"]');
     if (!row) return;
     var pe = null;
-    for (var i = 0; i < state.pessoas.length; i++) if (state.pessoas[i].id === pid) pe = state.pessoas[i];
+    var lista = pessoasFundo(f);
+    for (var i = 0; i < lista.length; i++) if (lista[i].id === pid) pe = lista[i];
     if (!pe) return;
     row.outerHTML = cauRowHTML(f, pe);
     var ft = document.querySelector('[data-foot="' + f + '"]');
@@ -1191,8 +1242,9 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
     if (el) el.innerHTML = stampHTML();
   }
 
-  function cauStatus(f, pg, alvo) {
+  function cauStatus(f, pg, alvo, ent) {
     if (pg >= alvo && alvo > 0) return { cls: "done", lbl: "Quitado" };
+    if (ent > 0 && pg >= ent) return { cls: "part", lbl: "Entrada paga" };
     if (vencida(state[FUNDOS[f].cfg].vencimento)) return { cls: "late", lbl: pg > 0 ? "Parcial, atrasado" : "Atrasado" };
     if (pg > 0) return { cls: "part", lbl: "Parcial" };
     return { cls: "open", lbl: "Em aberto" };
@@ -1386,6 +1438,7 @@ details.cfg > summary:focus-visible { outline: 2px solid var(--accent); outline-
       empregada: state.empregada,
       pessoas: state.pessoas, pagos: state.pagos, caucaoLanc: state.caucaoLanc,
       empregadaLanc: state.empregadaLanc,
+      van: state.van, vanLanc: state.vanLanc,
       atualizadoEm: state.atualizadoEm
     }, null, 1);
   }
